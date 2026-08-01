@@ -1,7 +1,7 @@
 "use client";
 import { boolean } from "zod";
-import { useCreateWorkflow, useSuspenseWorkflows } from "../hooks/use-workflows";
-import { EntityContainer, EntityHeader, EntityPagination, EntitySearch } from "@/components/entity-components";
+import { useCreateWorkflow, useRemoveWorkflow, useSuspenseWorkflows } from "../hooks/use-workflows";
+import { EmptyView, EntityContainer, EntityHeader, EntityItem, EntityList, EntityPagination, EntitySearch, ErrorView, LoadingView } from "@/components/entity-components";
 import { useUpgradeModel } from "../hooks/use-upgrade-model";
 import { useRouter } from "next/navigation";
 import { useWorkflowsParams } from "../hooks/use-workflows-params";
