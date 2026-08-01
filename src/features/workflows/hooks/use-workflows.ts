@@ -31,3 +31,26 @@ export const useCreateWorkflow = () => {
         }),
     );
 };
+
+/**
+ * Hook to remove a workflow by its ID. It uses the TRPC client to call the remove mutation and handles success and error cases with toast notifications. On success, it invalidates the workflows query to refresh the list.
+ * @returns {object} An object containing the mutation function and its state.
+ */
+export const useRemoveWorkflow = () => {
+    const queryClient = useQueryClient();
+    const trpc = useTRPC();
+
+    return useMutation(
+        trpc.Workflows.remove.mutationOptions({
+            onSuccess: (data) => {
+                toast.success(`Workflow "${data.name}" removed`);
+                queryClient.invalidateQueries(
+                    trpc.Workflows.getMany.queryOptions({}),
+                );
+                queryClient.invalidateQueries(
+                    trpc.Workflows.getOne.queryFilter({ id: data.id }),
+                );
+            }
+        })
+    )
+}

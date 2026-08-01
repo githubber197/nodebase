@@ -6,6 +6,10 @@ import { useUpgradeModel } from "../hooks/use-upgrade-model";
 import { useRouter } from "next/navigation";
 import { useWorkflowsParams } from "../hooks/use-workflows-params";
 import { useEntitySearch } from "../hooks/use-entity-search";
+import type { Workflow } from "@/generated/prisma/client"
+import { WorkflowIcon } from "lucide-react";
+import { formatDistanceToNow } from "date-fns"
+import { toast } from "sonner";
 
 
 export const WorkflowsSearch = () => {
@@ -21,20 +25,20 @@ export const WorkflowsSearch = () => {
         onChange={onSearchChange}
         placeholder="Search Workflows"
         />
-    )
-}
+    );
+};
 
 export const WorkflowsList = () => {
     const workflows = useSuspenseWorkflows();
 
     return (
-        <div className="flex-1 flex justify-center items-center">
-            <p>
-                {JSON.stringify(workflows.data, null, 2)}
-            </p>
-        </div>
-        
-    );
+        <EntityList 
+            items={workflows.data.items}
+            getKey={(workflow) => workflow.id}
+            renderItem={(workflow) => <WorkflowItem data={workflow} />}
+            emptyView={<WorkflowsEmpty />}
+        />
+    )
 };
 
 export const WorkflowsHeader = ({ disabled }: {disabled?: boolean}) =>
@@ -46,7 +50,7 @@ export const WorkflowsHeader = ({ disabled }: {disabled?: boolean}) =>
     const handleCreate = () => {
         createWorkflow.mutate(undefined, {
             onSuccess: (data) => {
-                router.push(`/workflow/${data.id}`);
+                router.push(`/workflows/${data.id}`);
             },
 
             onError: (error) => {
@@ -103,4 +107,71 @@ export const WorkflowsContainer = ({
         {children}
     </EntityContainer>
     );;
+};
+
+export const WorkflowsLoading = () => {
+    return <LoadingView message="Loading workflows" />;
+};
+
+export const WorkflowsError = () => {
+    return <ErrorView message="Failed to load workflows" />;
+};
+
+export const WorkflowsEmpty = () => {
+    const createWorkflow = useCreateWorkflow();
+    const { handleError, model } = useUpgradeModel();
+    
+    const handleCreate = () => {
+        createWorkflow.mutate(undefined, {
+            onError: (error) => {
+                handleError(error);
+            },
+        });
+    };
+
+    return (
+        <>
+            {model}
+        <EmptyView
+            onNew={handleCreate}
+            message="No workflows found. Get started by creating one." 
+        />
+        </>
+    );
+};
+
+export const WorkflowItem = ({
+    data,
+}: {data: Workflow}) => {
+
+    const removeWorkflow = useRemoveWorkflow();
+    
+    const handleRemove = () => {
+        removeWorkflow.mutate({id: data.id }, {
+            onError: (error) => {
+                toast.error(`Failed to remove workflow: ${error.message}`);
+            },
+        });
+    }
+
+    return (
+        <EntityItem
+            href={`/workflows/${data.id}`}
+            title={data.name}
+            subtitle={
+                <>
+                    Updated {formatDistanceToNow(data.updatedAt, { addSuffix: true })}{" "}
+                    &bull; Created {" "}
+                    {formatDistanceToNow(data.createdAt, { addSuffix: true })}
+                </>
+            }
+            image={
+                <div className="size-8 flex items-center justify-center">
+                    <WorkflowIcon className="size-5 text-muted-foreground" />
+                </div>
+            }
+            onRemove={handleRemove}
+            isRemoving={removeWorkflow.isPending}
+        />
+    );
 }
