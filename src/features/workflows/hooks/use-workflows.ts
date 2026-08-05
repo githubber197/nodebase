@@ -65,7 +65,7 @@ export const useSuspenseWorkflow = (id: string) => {
 
 /**
  * 
- * @returns Hook to update workflow name
+ * Hook to update workflow name
  */
 
 export const useUpdateWorkflowName = () => {
@@ -115,6 +115,27 @@ export const useUpdateWorkflow = () => {
             },
             onError: (error) => {
                 toast.error(`Failed to save workflow: ${error.message}`);
+            },
+        }),
+    );
+};
+
+/**
+ *  Hook to execute a workflow
+ */
+
+export const useExecuteWorkflow = () => {
+    
+    const trpc = useTRPC();
+    
+
+    return useMutation(
+        trpc.Workflows.execute.mutationOptions({
+            onSuccess: (data) => {
+                toast.success(`Workflow "${data.name}" executed`);
+            },
+            onError: (error) => {
+                toast.error(`Failed to execute workflow: ${error.message}`);
             },
         }),
     );
