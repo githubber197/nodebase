@@ -23,6 +23,7 @@ type OpenAiData = {
 export const openAiExecutor: NodeExecutor<OpenAiData> = async({
     data,
     nodeId,
+    userId,
     context,
     step,
     publish,
@@ -51,7 +52,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async({
                 status: "error"
             })
         );
-        throw new NonRetriableError("OpenAI node: Variable name is missing");
+        throw new NonRetriableError("OpenAI node: Credential is missing");
     }
 
     if(!data.userPrompt) {
@@ -76,6 +77,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async({
         return prisma.credential.findUnique({
             where: {
                 id: data.credentialId,
+                userId,
             },
         });
     });
