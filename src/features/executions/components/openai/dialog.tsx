@@ -23,8 +23,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useCredentialsByType } from "@/features/credentials/hooks/use-credentials";
-import { CredentialType } from "@/generated/prisma/enums";
 import {
     Select,
     SelectContent,
@@ -33,6 +31,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import Image from "next/image";
+import { useCredentialsByType } from "@/features/credentials/hooks/use-credentials";
+import { CredentialType } from "@/generated/prisma/enums";
 
 const formSchema = z.object({
     variableName: z
@@ -41,22 +41,22 @@ const formSchema = z.object({
         .regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/, { 
             message: "Variable name must start with a letter or underscore and container only letters, numbers, and underscores",
          }),
-    credentialId: z.string().min(1, "Credential is required"), 
+    credentialId: z.string().min(1, "Credential is required"),
     systemPrompt: z.string().optional(),
     userPrompt: z.string().min(1, "User prompt is required:")
 });
 
 
-export type GeminiFormValues = z.infer<typeof formSchema>;
+export type OpenAiFormValues = z.infer<typeof formSchema>;
 
 interface Props {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSubmit: (values: z.infer<typeof formSchema>) => void;
-    defaultValues?: Partial<GeminiFormValues>;
+    defaultValues?: Partial<OpenAiFormValues>;
 };
 
-export const GeminiDialog = ({
+export const OpenAiDialog = ({
     open,
     onOpenChange,
     onSubmit,
@@ -64,8 +64,8 @@ export const GeminiDialog = ({
 }: Props) => {
 
     const { 
-        data: credentials, isLoading: isLoadingCredentials,
-    } = useCredentialsByType(CredentialType.GEMINI);
+            data: credentials, isLoading: isLoadingCredentials,
+        } = useCredentialsByType(CredentialType.OPENAI);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -88,7 +88,7 @@ export const GeminiDialog = ({
         }
     }, [open, defaultValues, form]);
 
-    const watchVariableName = form.watch("variableName") || "mygemini";
+    const watchVariableName = form.watch("variableName") || "myopenai";
 
     const handleSubmit = (values: z.infer<typeof formSchema>) => {
         onSubmit(values);
@@ -99,7 +99,7 @@ export const GeminiDialog = ({
         <Dialog open={open} onOpenChange={onOpenChange}>  
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Gemini Config</DialogTitle>
+                    <DialogTitle>OpenAI Config</DialogTitle>
                     <DialogDescription>
                         Configure the AI model and prompts this node.
                     </DialogDescription>
@@ -118,7 +118,7 @@ export const GeminiDialog = ({
                                     <FormLabel>Variable Name</FormLabel>
                                     <FormControl>
                                         <Input 
-                                            placeholder="gemini"
+                                            placeholder="myopenai"
                                             {...field}
                                         />
                                     </FormControl>
@@ -136,7 +136,7 @@ export const GeminiDialog = ({
                             name="credentialId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Gemini Credential</FormLabel>
+                                    <FormLabel>OpenAI Credential</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
@@ -158,8 +158,8 @@ export const GeminiDialog = ({
                                                 >
                                                     <div className="flex items-center gap-2">
                                                         <Image
-                                                            src="/logos/gemini.svg"
-                                                            alt="Gemini"
+                                                            src="/logos/openai.svg"
+                                                            alt="OpenAI"
                                                             width={16}
                                                             height={16}
                                                         />
@@ -171,8 +171,9 @@ export const GeminiDialog = ({
                                     </Select>
                                     <FormMessage />
                                 </FormItem>
-                                )}
+                            )}
                         />
+
                         
                         <FormField 
                             control={form.control}
