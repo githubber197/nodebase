@@ -6,6 +6,11 @@ import { Toaster } from "@/components/ui/sonner";
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import "./globals.css";
 
+export const metadata: Metadata = {
+  title: "Nodebase",
+  description: "Build and automate workflows visually",
+};
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
